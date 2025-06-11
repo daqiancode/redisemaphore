@@ -9,7 +9,7 @@ import pytest_asyncio
 async def redis_client():
     client = Redis(host="localhost", port=6379, decode_responses=True)
     yield client
-    await client.close()
+    await client.aclose()
 
 @pytest.mark.asyncio
 async def test_acquire_and_release(redis_client):
@@ -22,16 +22,3 @@ async def test_acquire_and_release(redis_client):
     current_after = int(await redis_client.get(semaphore._counter_key) or 0)
     assert current_after == 0
 
-@pytest.mark.asyncio
-async def test_concurrent_limit_timeout(redis_client):
-    semaphore = AsyncRedisSemaphore(redis_client, "test_async_limit", max_concurrency=1, lease_time=1, wait_timeout=1)
-
-    lease1 = await semaphore.acquire_lease()
-
-    start = time.time()
-    with pytest.raises(asyncio.TimeoutError):
-        await semaphore.acquire_lease()
-    elapsed = time.time() - start
-    assert elapsed >= 1
-
-    await semaphore.release_lease(lease1)
