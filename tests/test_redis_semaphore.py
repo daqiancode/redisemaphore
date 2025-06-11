@@ -6,9 +6,8 @@ from redisemaphore import RedisSemaphore
 @pytest.fixture(scope="module")
 def redis_client():
     client = Redis(host="localhost", port=6379, decode_responses=True)
-    client.flushdb()
     yield client
-    client.flushdb()
+    client.close()
 
 def test_semaphore_acquire_and_release(redis_client):
     semaphore = RedisSemaphore(redis_client, "test_semaphore", max_concurrency=2, lease_time=5, wait_timeout=5)

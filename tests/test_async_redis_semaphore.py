@@ -3,13 +3,12 @@ import pytest
 import time
 from redis.asyncio import Redis
 from redisemaphore import AsyncRedisSemaphore
+import pytest_asyncio
 
-@pytest.fixture(scope="module")
+@pytest_asyncio.fixture(scope="module")
 async def redis_client():
     client = Redis(host="localhost", port=6379, decode_responses=True)
-    await client.flushdb()
     yield client
-    await client.flushdb()
     await client.close()
 
 @pytest.mark.asyncio
