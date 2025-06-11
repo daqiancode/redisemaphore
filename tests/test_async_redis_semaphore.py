@@ -9,7 +9,6 @@ import pytest_asyncio
 async def redis_client():
     client = Redis(host="localhost", port=6379, decode_responses=True)
     yield client
-    await client.aclose()
 
 @pytest.mark.asyncio
 async def test_acquire_and_release(redis_client):
